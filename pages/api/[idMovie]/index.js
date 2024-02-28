@@ -74,10 +74,7 @@ import { ObjectId } from "mongodb";
  */
 
 export default async function handler(req, res) {
-    const {
-        query: { idMovie },
-        method,
-    } = req;
+    const { idMovie } = req.query
 
     const client = await clientPromise;
     const db = client.db("sample_mflix");
