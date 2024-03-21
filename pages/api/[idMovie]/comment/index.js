@@ -1,21 +1,65 @@
 import clientPromise from "../../../../lib/mongodb";
-
+import {ObjectId} from "mongodb";
 /**
  * @swagger
- * /api/movie/comments:
+ * tags:
+ *   - name: Comments
+ *     description: Opérations sur les commentaires
+ *
+ * components:
+ *   schemas:
+ *     Comment:
+ *       type: object
+ *       required:
+ *         - text
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: L'ID unique du commentaire.
+ *         text:
+ *           type: string
+ *           description: Le contenu du commentaire.
+ *         movieId:
+ *           type: string
+ *           description: L'ID du film associé au commentaire.
+ *       example:
+ *         _id: "507f1f77bcf86cd799439011"
+ *         text: "C'est un super film !"
+ *         movieId: "507f1f77bcf86cd799439011"
+ *
+ * /api/comments:
  *   get:
- *     summary: Récupère tous les commentaires
- *     description: Renvoie une liste de tous les commentaires liés à des films disponibles dans la base de données.
+ *     tags: [Comments]
+ *     summary: Récupère tous les commentaires ou un commentaire spécifique par son ID
+ *     description: Renvoie une liste de tous les commentaires ou un commentaire spécifique si un ID est fourni en paramètre de requête.
+ *     parameters:
+ *       - in: query
+ *         name: idComment
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: L'ID unique du commentaire à récupérer.
  *     responses:
  *       200:
- *         description: Une liste de commentaires.
- *         
+ *         description: Une liste de commentaires ou un commentaire spécifique a été récupérée avec succès.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 data:
+ *                   $ref: '#/components/schemas/Comment'
+ *       500:
+ *         description: Erreur interne du serveur
  */
+
 export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                // Si idComment est fourni, récupérer un seul commentaire, sinon récupérer tous les commentaires
                 const comments = idComment
                     ? await db.collection("comments").findOne({ _id: new ObjectId(idComment) })
                     : await db.collection("comments").find({}).toArray();

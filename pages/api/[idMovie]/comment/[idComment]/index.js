@@ -1,5 +1,88 @@
-import clientPromise from "../../../../lib/mongodb";
+import clientPromise from "../../../../../lib/mongodb";
 import { ObjectId } from "mongodb";
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Comments
+ *     description: "Opérations sur les commentaires"
+ *
+ * /api/comments/{idComment}:
+ *   get:
+ *     tags: [Comments]
+ *     summary: "Récupère un commentaire par son ID"
+ *     description: "Renvoie les détails d'un commentaire spécifique par son ID."
+ *     parameters:
+ *       - in: path
+ *         name: idComment
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID unique du commentaire à récupérer."
+ *     responses:
+ *       200:
+ *         description: "Détails d'un commentaire."
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Comment'
+ *       404:
+ *         description: "Commentaire non trouvé."
+ *
+ *   post:
+ *     tags: [Comments]
+ *     summary: "Ajoute un nouveau commentaire"
+ *     description: "Crée un nouveau commentaire dans la base de données."
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Comment'
+ *     responses:
+ *       201:
+ *         description: "Nouveau commentaire créé avec succès."
+ *
+ *   put:
+ *     tags: [Comments]
+ *     summary: "Modifie un commentaire existant"
+ *     description: "Met à jour un commentaire existant dans la base de données par son ID."
+ *     parameters:
+ *       - in: path
+ *         name: idComment
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID unique du commentaire à mettre à jour."
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Comment'
+ *     responses:
+ *       200:
+ *         description: "Commentaire mis à jour avec succès."
+ *       404:
+ *         description: "Commentaire non trouvé."
+ *
+ *   delete:
+ *     tags: [Comments]
+ *     summary: "Supprime un commentaire"
+ *     description: "Supprime un commentaire spécifique de la base de données par son ID."
+ *     parameters:
+ *       - in: path
+ *         name: idComment
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID unique du commentaire à supprimer."
+ *     responses:
+ *       200:
+ *         description: "Commentaire supprimé avec succès."
+ *       404:
+ *         description: "Commentaire non trouvé."
+ */
 
 export default async function handler(req, res) {
     const { idComment } = req.query
@@ -20,7 +103,7 @@ export default async function handler(req, res) {
                 res.status(500).json({ status: 500, message: error.message });
             }
             break;
-            case 'POST':
+        case 'POST':
                 // Ajouter un commentaire
             try {
                 const newComment = await db.collection('comments').insertOne(req.body);
@@ -29,7 +112,7 @@ export default async function handler(req, res) {
                 res.status(500).json({ status: 500, message: error.message });
             }
             break;
-            case 'PUT':
+        case 'PUT':
                 // Modifier un commentaire
             try {
                 const updatedComment = await db.collection('comments').updateOne(
@@ -44,7 +127,7 @@ export default async function handler(req, res) {
                 res.status(500).json({ status: 500, message: error.message });
             }
             break;
-            case 'DELETE':
+        case 'DELETE':
                 // Supprimer un commentaire
             try {
                 const deletedComment = await db.collection('comments').deleteOne({ _id: new ObjectId(idComment) });
