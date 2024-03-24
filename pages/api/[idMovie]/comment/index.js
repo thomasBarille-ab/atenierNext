@@ -12,6 +12,7 @@ import {ObjectId} from "mongodb";
  *       type: object
  *       required:
  *         - text
+ *         - movieId
  *       properties:
  *         _id:
  *           type: string
@@ -27,91 +28,53 @@ import {ObjectId} from "mongodb";
  *         text: "C'est un super film !"
  *         movieId: "507f1f77bcf86cd799439011"
  *
- * /api/comments:
+ * /api/{idMovie}/comments:
  *   get:
  *     tags: [Comments]
- *     summary: Récupère tous les commentaires ou un commentaire spécifique par son ID
- *     description: Renvoie une liste de tous les commentaires ou un commentaire spécifique si un ID est fourni en paramètre de requête.
+ *     summary: Récupère tous les commentaires liés à un film spécifique
+ *     description: Renvoie une liste de tous les commentaires associés à l'ID d'un film fourni en paramètre de requête.
  *     parameters:
  *       - in: query
- *         name: idComment
- *         required: false
+ *         name: movieId
+ *         required: true
  *         schema:
  *           type: string
- *         description: L'ID unique du commentaire à récupérer.
+ *         description: L'ID du film pour lequel récupérer les commentaires.
  *     responses:
  *       200:
- *         description: Une liste de commentaires ou un commentaire spécifique a été récupérée avec succès.
+ *         description: Une liste de commentaires associés au film a été récupérée avec succès.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: integer
- *                   example: 200
- *                 data:
- *                   $ref: '#/components/schemas/Comment'
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Comment'
+ *       400:
+ *         description: movieId est requis
  *       500:
  *         description: Erreur interne du serveur
  */
 
+
 export default async function handler(req, res) {
+    const { method, query: { movieId } } = req;
+    const client = await clientPromise;
+    const db = client.db("sample_mflix");
+
     switch (method) {
         case 'GET':
             try {
-                const comments = idComment
-                    ? await db.collection("comments").findOne({ _id: new ObjectId(idComment) })
-                    : await db.collection("comments").find({}).toArray();
-                res.status(200).json({ status: 200, data: comments });
+                const comments = await db.collection("comments").find({ movieId: new ObjectId(movieId) }).toArray();
+                return res.status(200).json({ status: 200, data: comments });
             } catch (error) {
-                res.status(500).json({ status: 500, message: error.message });
-            }
-            break;
-            case 'POST':
-                // Ajouter un nouveau commentaire
-            try {
-                const newComment = await db.collection("comments").insertOne(body);
-                res.status(201).json({ status: 201, data: newComment.ops[0] });
-            } catch (error) {
-                res.status(500).json({ status: 500, message: error.message });
-            }
-            break;
-            case 'PUT':
-                // Modifier un commentaire existant
-            try {
-                if (!idComment) {
-                    return res.status(400).json({ status: 400, message: "idComment is required for PUT" });
+                if (error.message.includes('Argument passed in must be a single String of 12 bytes or a string of 24 hex characters')) {
+                    return res.status(400).json({ message: "Invalid movieId format" });
                 }
-                const updatedComment = await db.collection("comments").updateOne(
-                    { _id: new ObjectId(idComment) },
-                    { $set: body }
-                    );
-                if (updatedComment.matchedCount === 0) {
-                    return res.status(404).json({ status: 404, message: "Comment not found" });
-                }
-                res.status(200).json({ status: 200, message: "Comment updated successfully" });
-            } catch (error) {
-                res.status(500).json({ status: 500, message: error.message });
+                return res.status(500).json({ message: "Internal Server Error", error: error.message });
             }
-            break;
-            case 'DELETE':
-                // Supprimer un commentaire
-            try {
-                if (!idComment) {
-                    return res.status(400).json({ status: 400, message: "idComment is required for DELETE" });
-                }
-                const deletedComment = await db.collection("comments").deleteOne({ _id: new ObjectId(idComment) });
-                if (deletedComment.deletedCount === 0) {
-                    return res.status(404).json({ status: 404, message: "Comment not found" });
-                }
-                res.status(200).json({ status: 200, message: "Comment deleted successfully" });
-            } catch (error) {
-                res.status(500).json({ status: 500, message: error.message });
-            }
-            break;
-            default:
-                res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-                res.status(405).end(`Method ${method} Not Allowed`);
+
+        default:
+            res.setHeader('Allow', ['GET']);
+            return res.status(405).end(`Method ${method} Not Allowed`);
     }
 }

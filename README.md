@@ -80,3 +80,60 @@ To deploy your local project to Vercel, push it to GitHub/GitLab/Bitbucket and [
 Alternatively, you can deploy using our template by clicking on the Deploy button below.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?project-name=with-mongodb&repository-name=with-mongodb&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-mongodb&integration-ids=oac_jnzmjqM10gllKmSrG0SGrHOH)
+
+# API Documentation
+
+Notre API fournit un ensemble d'endpoints pour la gestion des films et des commentaires. Voici la liste des opérations disponibles via notre API.
+
+## Commentaires
+
+Opérations CRUD sur les commentaires associés à un film.
+
+### Récupérer un commentaire par son ID
+
+- **GET `/api/comments/{idComment}`** : Récupère les détails d'un commentaire spécifique en utilisant son ID unique.
+
+### Ajouter un nouveau commentaire
+
+- **POST `/api/comments/{idComment}`** : Ajoute un nouveau commentaire dans la base de données. Le corps de la requête doit contenir le contenu du commentaire et l'ID du film associé.
+
+### Modifier un commentaire existant
+
+- **PUT `/api/comments/{idComment}`** : Met à jour un commentaire existant en utilisant son ID unique. Le corps de la requête doit contenir les modifications à apporter.
+
+### Supprimer un commentaire
+
+- **DELETE `/api/comments/{idComment}`** : Supprime un commentaire spécifique en utilisant son ID unique.
+
+### Récupérer tous les commentaires liés à un film spécifique
+
+- **GET `/api/{idMovie}/comments`** : Récupère tous les commentaires associés à l'ID d'un film donné.
+
+## Films
+
+Opérations CRUD sur les films.
+
+### Récupérer un film par son ID
+
+- **GET `/api/movie/{idMovie}`** : Récupère les détails d'un film spécifique en utilisant son ID unique.
+
+### Modifier un film existant
+
+- **PUT `/api/movie/{idMovie}`** : Met à jour un film existant en utilisant son ID unique. Le corps de la requête doit contenir les modifications à apporter.
+
+### Supprimer un film
+
+- **DELETE `/api/movie/{idMovie}`** : Supprime un film spécifique en utilisant son ID unique.
+
+### Récupérer tous les films
+
+- **GET `/api/movies`** : Récupère une liste de tous les films disponibles dans la base de données.
+
+### Ajouter un nouveau film
+
+- **POST `/api/movies`** : Ajoute un nouveau film dans la base de données. Le corps de la requête doit contenir les données du nouveau film.
+
+---
+
+Pour interagir avec l'API, les clients peuvent utiliser des outils comme cURL ou Postman pour envoyer des requêtes HTTP vers les endpoints définis.
+

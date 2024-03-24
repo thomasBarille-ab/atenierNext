@@ -68,50 +68,43 @@ import clientPromise from "../../../lib/mongodb";
  */
 
 export default async function handler(req, res) {
+    const { method, body, query: { _id } } = req;
     const client = await clientPromise;
     const db = client.db("sample_mflix");
-    const movies = await db.collection("movies").find({}).limit(10).toArray();
-    res.json({ status: 200, data: movies });
 
     switch (method) {
         case 'GET':
-            // Récupérer tous les films
             try {
-                const movies = await db.collection("movies").find({}).toArray();
+                const movies = await db.collection("movies").find({}).limit(10).toArray();
                 res.status(200).json({ status: 200, data: movies });
             } catch (error) {
-                res.status(500).json({ status: 500, message: "Internal Server Error" });
+                res.status(500).json({ status: 500, message: "Internal Server Error", error: error.message });
             }
             break;
         case 'POST':
-            // Ajouter un nouveau film
             try {
                 const movie = await db.collection("movies").insertOne(body);
                 res.status(201).json({ status: 201, data: movie.ops[0] });
             } catch (error) {
-                res.status(500).json({ status: 500, message: "Internal Server Error" });
+                res.status(500).json({ status: 500, message: "Internal Server Error", error: error.message });
             }
             break;
         case 'PUT':
-            // Modifier un film existant par son ID
             try {
-                const { _id, ...updateData } = body;
                 if (!_id) {
                     return res.status(400).json({ status: 400, message: "Movie ID is required" });
                 }
-                const updated = await db.collection("movies").updateOne({ _id: new ObjectId(_id) }, { $set: updateData });
+                const updated = await db.collection("movies").updateOne({ _id: new ObjectId(_id) }, { $set: body });
                 if (updated.matchedCount === 0) {
                     return res.status(404).json({ status: 404, message: "Movie not found" });
                 }
                 res.status(200).json({ status: 200, message: "Movie updated successfully" });
             } catch (error) {
-                res.status(500).json({ status: 500, message: "Internal Server Error" });
+                res.status(500).json({ status: 500, message: "Internal Server Error", error: error.message });
             }
             break;
         case 'DELETE':
-            // Supprimer un film par son ID
             try {
-                const { _id } = req.query;
                 if (!_id) {
                     return res.status(400).json({ status: 400, message: "Movie ID is required" });
                 }
@@ -121,7 +114,7 @@ export default async function handler(req, res) {
                 }
                 res.status(200).json({ status: 200, message: "Movie deleted successfully" });
             } catch (error) {
-                res.status(500).json({ status: 500, message: "Internal Server Error" });
+                res.status(500).json({ status: 500, message: "Internal Server Error", error: error.message });
             }
             break;
         default:
